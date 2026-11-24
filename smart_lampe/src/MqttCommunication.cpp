@@ -57,13 +57,12 @@ void MqttCommunication::onMqttMessage(int messageSize)
         }
     }
 
-    // Debug
-    Serial.println("----- MQTT MESSAGE RECEIVED -----");
+    Serial.println("[MQTT] Message received");
 
-    Serial.print("Topic: ");
+    Serial.print("\n[MQTT] Topic: ");
     Serial.println(receivedTopic);
 
-    Serial.print("Payload: ");
+    Serial.print("[MQTT] Payload: ");
     Serial.println(payload);
 
     // Brightness command
@@ -73,7 +72,7 @@ void MqttCommunication::onMqttMessage(int messageSize)
 
         dashboardBrightness = map(brightnessPercent, 0, 100, 0, 255);
 
-        Serial.print("Dashboard brightness: ");
+        Serial.print("[MQTT] Dashboard brightness: ");
         Serial.println(brightnessPercent);
     }
 
@@ -96,7 +95,7 @@ void MqttCommunication::onMqttMessage(int messageSize)
             currentMode = ControlMode::AUTO;
         }
 
-        Serial.print("Control mode changed to: ");
+        Serial.print("[SYSTEM] Control mode changed to: ");
         Serial.println(payload);
     }
     else if(receivedTopic == MqttTopics::autoBrightness)
