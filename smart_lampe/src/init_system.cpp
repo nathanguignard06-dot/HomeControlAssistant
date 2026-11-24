@@ -19,3 +19,16 @@ void SystemInit::setupSerial(int baud)
     Serial.println("[SERIAL] Serial communication for debug active.\n");
 }
 
+int SystemInit::readPot()
+{
+    int potRawValue = analogRead(PIN_POT);
+    int potMapValue = map(potRawValue, 0, 4095, 0, 255);
+    return potMapValue;
+}
+
+int SystemInit::readLdr()
+{
+    int ldrRawValue = analogRead(PIN_LDR);
+    int ldrMapValue = map(ldrRawValue, 4095, 0, 0, 4095);
+    return ldrMapValue;
+}

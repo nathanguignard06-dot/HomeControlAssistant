@@ -12,7 +12,8 @@ class SystemInit
 
         void begin();
         void setupSerial(int baud);
-        
+        int readPot();
+        int readLdr();
 
     private:
 
@@ -20,6 +21,7 @@ class SystemInit
         const int PIN_LDR;
 
         Adafruit_NeoPixel& lamp;
+
 };
 
 #endif
