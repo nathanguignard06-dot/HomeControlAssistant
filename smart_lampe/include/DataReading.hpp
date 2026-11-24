@@ -11,12 +11,13 @@ class DataReading
 {
     public:
 
-        DataReading(SystemInit& system, MqttCommunication& mqttClient);
+        DataReading(SystemInit& system, MqttCommunication& mqttClient, Adafruit_NeoPixel& ring);
 
         String requestMacAddress();
         int requestBrightness();
         int requestPotValue();
         int requestLdrValue();
+        void controlNeopixel();
         
         private:
 
@@ -27,6 +28,7 @@ class DataReading
         int ldrValue;
         
         SystemInit& lampeSystem;
+        Adafruit_NeoPixel& lamp;
         MqttCommunication& mqtt;        
 };
 #endif

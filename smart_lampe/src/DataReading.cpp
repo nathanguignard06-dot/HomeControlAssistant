@@ -1,6 +1,6 @@
 #include "DataReading.hpp"
 
-DataReading::DataReading(SystemInit& system, MqttCommunication& mqttClient) : lampeSystem(system), mqtt(mqttClient) {}
+DataReading::DataReading(SystemInit& system, MqttCommunication& mqttClient, Adafruit_NeoPixel& ring) : lampeSystem(system), mqtt(mqttClient), lamp(ring) {}
 
 String DataReading::requestMacAddress()
 {
@@ -51,3 +51,10 @@ int DataReading::requestLdrValue()
     return ldrValue;
 }
 
+void DataReading::controlNeopixel()
+{
+    lamp.clear();
+    lamp.fill(lamp.Color(255, 255, 255)); //white
+    lamp.setBrightness(brightness);
+    lamp.show();
+}
