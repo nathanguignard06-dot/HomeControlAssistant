@@ -7,5 +7,6 @@
 #include "MqttCommunication.hpp"
 #include "DataReading.hpp"
 #include "MqttTopics.hpp"
+#include "definitions.h"
 
 #endif

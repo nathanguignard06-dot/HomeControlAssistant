@@ -1,20 +1,36 @@
-#include "WiFiConnect.hpp"
+#include "include_all.h"
 
+SystemInit lampeSystem(POT_PIN, LDR_PIN, ring);
 WiFiConnect wifi("ESP32_SETUP");
+MqttClient client;
+MqttCommunication mqtt(broker, port, client);
+DataReading object(lampeSystem, mqtt, ring);
 
 bool applicationStarted = false;
 
+//application initializer
+void startApplication()
+{
+  Serial.println("[SYSTEM] Starting application...");
+
+  mqtt.begin();
+  lampeSystem.begin();
+
+  applicationStarted = true;
+
+  Serial.println("[SYSTEM] Application started!");
+}
 
 void setup()
 {
-  Serial.begin(115200);
+  lampeSystem.setupSerial(baud);  //init serial communication for debug
 
   if(wifi.begin())
   {
     Serial.println("[SYSTEM] WiFi ready!");
 
     //starting application
-    applicationStarted = true;
+    startApplication();
   }
 }
 
@@ -31,12 +47,13 @@ void loop()
       Serial.println("[SYSTEM] WiFi configured!");
 
       //starting application
-      applicationStarted = true;
+      startApplication();
     }
   }
 
   if(applicationStarted)
   {
+    mqtt.poll();
     //later code goes here
 
   }

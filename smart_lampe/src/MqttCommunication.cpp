@@ -8,13 +8,10 @@ void MqttCommunication::begin()
     {
         Serial.print("[MQTT] Connection failed! Error code = ");
         Serial.println(mqttClient.connectError());
-
-        while(1);
     }
 
     onMessage();
     subscribeToTopics();
-
 }
 
 void MqttCommunication::subscribeToTopics()
