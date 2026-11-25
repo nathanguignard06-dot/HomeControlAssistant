@@ -17,6 +17,7 @@ class DataReading
         int requestBrightness();
         int requestPotValue();
         int requestLdrValue();
+        unsigned long requestTime();
         void controlNeopixel();
         
         private:

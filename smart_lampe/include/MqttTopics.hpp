@@ -3,9 +3,8 @@
 
 namespace MqttTopics
 {
-    //sending topics
+    //sending topic
     const char allData[]        = "light/send/data";
-    const char autoData[]       = "light/send/auto";
 
     //receiving topics
     const char modeControl[]    = "light/control/mode";

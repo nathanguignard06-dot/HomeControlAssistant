@@ -2,6 +2,7 @@
 #define INCLUDE_ALL
 
 #include <Arduino.h>
+#include <ArduinoJson.h>
 #include "init_system.hpp"
 #include "WiFiConnect.hpp"
 #include "MqttCommunication.hpp"

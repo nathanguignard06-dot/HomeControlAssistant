@@ -23,6 +23,7 @@ class MqttCommunication
         int requestDashValue();
         int requestAutoValue();
         void poll();
+        void publish(String json, const char topic[]);
         
     private:
         

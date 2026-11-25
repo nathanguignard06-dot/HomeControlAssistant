@@ -115,3 +115,10 @@ int MqttCommunication::requestAutoValue()
 {
     return autoBrightness;
 }
+
+void MqttCommunication::publish(String json, const char topic[])
+{
+    mqttClient.beginMessage(topic);
+    mqttClient.print(json);
+    mqttClient.endMessage();
+}

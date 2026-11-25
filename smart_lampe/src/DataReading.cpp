@@ -51,6 +51,11 @@ int DataReading::requestLdrValue()
     return ldrValue;
 }
 
+unsigned long DataReading::requestTime()
+{
+    unsigned long timestamp = millis();
+}
+
 void DataReading::controlNeopixel()
 {
     lamp.clear();
