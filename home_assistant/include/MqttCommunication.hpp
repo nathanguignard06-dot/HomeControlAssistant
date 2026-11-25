@@ -1,0 +1,6 @@
+#ifndef MQTTCOMMUNICATION
+#define MQTTCOMMUNICATION
+
+
+
+#endif
