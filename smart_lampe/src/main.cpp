@@ -113,7 +113,26 @@ void loop()
         String json;
         serializeJson(doc, json);
 
+        Serial.println("\n[PAYLOAD]");
+        Serial.println(json);
+
         mqtt.publish(json, MqttTopics::allData);
+      }
+
+      //this part needed to send enough readings for machine leanrning in node-red
+      unsigned long currentMillisAuto = millis();
+      if(currentMillisAuto - previousMillisAuto >= interval)
+      {
+        previousMillisAuto = currentMillisAuto;
+
+        JsonDocument docAuto;
+
+        docAuto["photoValue"] = ldrValue;
+
+        String jsonAuto;
+        serializeJson(docAuto, jsonAuto);
+
+        mqtt.publish(jsonAuto, MqttTopics::autoData);
       }
     }
   }
