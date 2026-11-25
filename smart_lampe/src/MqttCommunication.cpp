@@ -2,16 +2,22 @@
 
 MqttCommunication::MqttCommunication(const char broker[], int port, MqttClient& client) : BROKER(broker), PORT(port), mqttClient(client) {}
 
-void MqttCommunication::begin()
+bool MqttCommunication::begin()
 {
     if(!mqttClient.connect(BROKER, PORT))
     {
         Serial.print("[MQTT] Connection failed! Error code = ");
         Serial.println(mqttClient.connectError());
+        
+        return false;
     }
 
     onMessage();
     subscribeToTopics();
+
+    Serial.println("[MQTT] Connected successfully!");
+
+    return true;
 }
 
 void MqttCommunication::subscribeToTopics()
@@ -121,4 +127,21 @@ void MqttCommunication::publish(String json, const char topic[])
     mqttClient.beginMessage(topic);
     mqttClient.print(json);
     mqttClient.endMessage();
+}
+
+String MqttCommunication::getModeString()
+{
+    switch(currentMode)
+    {
+        case ControlMode::POTENTIOMETER:
+            return "POTENTIOMETER";
+
+        case ControlMode::DASHBOARD:
+            return "DASHBOARD";
+
+        case ControlMode::AUTO:
+            return "AUTO";
+    }
+
+    return "UNKNOWN";
 }

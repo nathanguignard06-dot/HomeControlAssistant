@@ -10,6 +10,7 @@ void SystemInit::begin()
     lamp.begin();
     lamp.clear();
     lamp.fill(lamp.Color(255, 255, 255)); //white 
+    lamp.show();
 }
 
 void SystemInit::setupSerial(int baud)

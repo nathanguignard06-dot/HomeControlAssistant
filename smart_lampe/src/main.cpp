@@ -3,7 +3,8 @@
 /*--- OBJECT INITIALISING ---*/
 SystemInit lampeSystem(POT_PIN, LDR_PIN, ring);
 WiFiConnect wifi("ESP32_SETUP");
-MqttClient client;
+WiFiClient networkClient;
+MqttClient client(networkClient);
 MqttCommunication mqtt(broker, port, client);
 DataReading object(lampeSystem, mqtt, ring);
 
@@ -12,7 +13,7 @@ bool applicationStarted          = false;   //to start app
 
 const long interval              = 1000;    //interval for ldr reading and rest of program
 unsigned long previousMillis     = 0;
-const long intervalPot           = 5;       //interval for potentiometer reading
+const long intervalPot           = 20;       //interval for potentiometer reading
 unsigned long previousMillisPot  = 0;
 const long intervalSend          = 50000;   //interval for sending data
 unsigned long previousMillisSend = 0;
@@ -105,7 +106,7 @@ void loop()
         doc["photoValue"] = ldrValue;
         doc["potentiometerValue"] = potValue;
         doc["brightness"] = brightness;
-        doc["controlMode"] = mqtt.currentModeActive();
+        doc["controlMode"] = mqtt.getModeString();
         doc["timestamp"] = timestamp;
         doc["deviceType"] = "Neopixel 24 LED's Ring";
 

@@ -18,22 +18,23 @@ class MqttCommunication
 
         MqttCommunication(const char broker[], int port, MqttClient& client);
 
-        void begin();
+        bool begin();
         const ControlMode currentModeActive();
         int requestDashValue();
         int requestAutoValue();
         void poll();
         void publish(String json, const char topic[]);
+        String getModeString();
         
     private:
         
         const char* BROKER;
         const int PORT;
         
-        int dashboardBrightness;
-        int autoBrightness;
+        int dashboardBrightness = 0;
+        int autoBrightness = 0;
         
-        ControlMode currentMode;
+        ControlMode currentMode = ControlMode::POTENTIOMETER;
         MqttClient& mqttClient;
         
         static MqttCommunication* instance;

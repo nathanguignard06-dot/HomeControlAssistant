@@ -22,11 +22,11 @@ class DataReading
         
         private:
 
-        String deviceId;
-        String currentMode;
-        int brightness;
-        int potValue;
-        int ldrValue;
+        String deviceId = "";
+        String currentMode = "POTENTIOMETER";
+        int brightness = 0;
+        int potValue = 0;
+        int ldrValue = 0;
         
         SystemInit& lampeSystem;
         Adafruit_NeoPixel& lamp;

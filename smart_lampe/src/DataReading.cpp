@@ -53,7 +53,7 @@ int DataReading::requestLdrValue()
 
 unsigned long DataReading::requestTime()
 {
-    unsigned long timestamp = millis();
+    return millis();
 }
 
 void DataReading::controlNeopixel()
