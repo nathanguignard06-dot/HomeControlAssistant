@@ -1,33 +1,53 @@
 #include "WiFiConnect.hpp"
 
-WiFiConnect::WiFiConnect(const char ssidAP[]) : SSID_AP(ssidAP), server(80) {}
+WiFiConnect::WiFiConnect(const char ssidAP[], Oled& screen) : SSID_AP(ssidAP), oled(screen), server(80) {}
 
 bool WiFiConnect::begin()
 {
     preferences.begin("wifi-config", false);
 
+    //getting user credentials from preferences
     String ssid = preferences.getString("ssid", "");
     String pass = preferences.getString("password", "");
 
-    if(ssid.length() > 0)
+    if(ssid.length() > 0)   //verifies if there is an ssid saved in preferences or not
     {
+        oled.clearScreen();
+        oled.screenSettings(1, 0, 6);
         Serial.println("[WIFI] Saved credentials found");
+        oled.print("Saved credentials found");
+        oled.displayScreen();
+        delay(1000);
 
-        WiFi.mode(WIFI_STA);
+        WiFi.mode(WIFI_STA);     //set as WIFI_AP_STA if you are using esp-now
 
+        //trying to connect to ssid using saved credentials
         if(wifiConnectToRouter(ssid.c_str(), pass.c_str()))
         {
+            oled.screenSettings(1, 0, 16);
             Serial.println("[WIFI] Successfully reconnected!");
-            return true;
+            oled.print("Successfully reconnected!");
+            oled.displayScreen();
+            delay(1000);
+
+            return true;    //if not successfull continue.
         }
 
+        oled.clearScreen();
+        oled.screenSettings(1, 0, 16);
         Serial.println("[WIFI] Unable to reconnect!");
+        oled.print("Unable to reconnect!");
+        oled.displayScreen();
     }
 
+    oled.screenSettings(1, 0, 16);
     Serial.println("[WIFI] Starting configuration portal...");
+    oled.print("Starting configuration portal...");
+    oled.displayScreen();
+    delay(1000);
 
-    wifiAPmode();
-    getAPIP();
+    wifiAPmode();   //setting mode as access point
+    getAPIP();      //getting access point IP
 
     return false;
 }
@@ -36,23 +56,35 @@ void WiFiConnect::wifiAPmode()
 {
     WiFi.mode(WIFI_AP);
 
-    WiFi.softAP(SSID_AP);
+    WiFi.softAP(SSID_AP);   //hotspot name
 
+    //turning on server
     server.on("/", HTTP_GET, [this]() {handleRoot();});
-
     server.on("/connect", HTTP_POST, [this]() {handleCredentials();});
-
     server.begin();
 
+    oled.clearScreen();
+    oled.screenSettings(1, 0, 16);
     Serial.println("[WIFI AP] Web server started");
+    oled.print("Web server started");
+    oled.displayScreen();
+    delay(1000);
 }
 
 void WiFiConnect::getAPIP()
 {
+    oled.clearScreen();
+    oled.screenSettings(1, 0, 6);
     IP = WiFi.softAPIP();
     Serial.print("[WIFI AP] AP IP address : ");
+    oled.print("IP address: ");
+    oled.screenSettings(1, 0, 18);
     Serial.println(IP);
+    oled.print(IP.toString());
+    oled.screenSettings(1, 0, 32);
     Serial.println("[WIFI AP] Connect to the hotspot and open this IP in your browser.");
+    oled.print("Connect to hotspot and open IP in browser.");
+    oled.displayScreen();
 }
 
 void WiFiConnect::handleClient()
@@ -102,21 +134,28 @@ void WiFiConnect::handleRoot()
 
 void WiFiConnect::handleCredentials()
 {
+    //getting credentials inserted by user from web page
     String ssid = server.arg("ssid");
     String pass = server.arg("password");
 
-    if(ssid.length() == 0)
+    if(ssid.length() == 0) //if no ssid entered
     {
         server.send(400, "text/html",
             "<h1>Error</h1><p>SSID cannot be empty.</p>");
         return;
     }
 
+    oled.clearScreen();
+    oled.screenSettings(1, 0, 16);
     Serial.println("\n[WIFI] New credentials received");
-    WiFi.mode(WIFI_AP_STA);
+    oled.print("New credentials received");
+    oled.displayScreen();
+    WiFi.mode(WIFI_STA); //change to WIFI_AP_STA if you are using esp-now
 
-    if(wifiConnectToRouter(ssid.c_str(), pass.c_str()))
+    if(wifiConnectToRouter(ssid.c_str(), pass.c_str())) //if can connect using credentials
     {
+        oled.clearScreen();
+        //save user credentials in preferences
         preferences.putString("ssid", ssid);
         preferences.putString("password", pass);
 
@@ -125,54 +164,99 @@ void WiFiConnect::handleCredentials()
             "<p>Your WiFi credentials have been saved.</p>"
             "<p>You can now close this page.</p>");
 
+        oled.screenSettings(1, 0, 16);
         Serial.println("[WIFI] Credentials saved");
+        oled.print("Credentials saved");
         delay(500);
 
-        server.stop();
+        server.stop();  //stop server once connected
 
-        WiFi.softAPdisconnect(true);
+        WiFi.softAPdisconnect(true);    //turn off access point
         WiFi.mode(WIFI_STA);
 
+        oled.screenSettings(1, 0, 32);
         Serial.println("[WIFI] Configuration complete");
+        oled.print("Configuration complete");
+        oled.displayScreen();
     }
-    else
+    else    //if connection attempt failed, restart
     {
-        WiFi.mode(WIFI_AP);
+        oled.clearScreen();
+
+        WiFi.mode(WIFI_AP); 
 
         server.send(200, "text/html",
             "<h1>Connection failed!</h1>"
             "<p>Please verify your SSID and password.</p>"
             "<a href='/'>Try again</a>");
 
+        oled.screenSettings(1, 0, 16);
         Serial.println("[WIFI] Returning to configuration portal");
+        oled.print("Returning to configuration portal");
+        oled.displayScreen();
     }
 }
 
 bool WiFiConnect::wifiConnectToRouter(const char ssid[], const char pass[])
 {
+    oled.clearScreen();
+    oled.screenSettings(1, 0, 6);
     Serial.print("\n[WIFI] Connecting to ");
     Serial.print(ssid);
+    oled.print("Connecting to ");
+    oled.screenSettings(1, 0, 16);
+    oled.print(ssid);
+    oled.displayScreen();
 
     int timeout = 0;
 
+    //connection attempt
     WiFi.begin(ssid, pass);
     while(WiFi.status() != WL_CONNECTED)
     {
+        int j = 3;
         delay(500);
         Serial.print(".");
+        for(int i = 0; i < 3; i++)
+        {
+            oled.screenSettings(1, i + j++, 30);
+            oled.print(".");
+            oled.displayScreen();
+        }
+
+        oled.clearScreen();
+        oled.screenSettings(1, 0, 6);
+        oled.print("Connecting to ");
+        oled.screenSettings(1, 0, 16);
+        oled.print(ssid);
+        oled.displayScreen();
 
         timeout++;
         if(timeout > 30)
         {
+            oled.screenSettings(1, 0, 16);
             Serial.println("\n[ERROR] WiFi connection timeout");
+            oled.print("WiFi connection timeout");
+            oled.displayScreen();
+            delay(1000);
             WiFi.disconnect(false, false);
             return false;
         }
     }
 
+    oled.clearScreen();
+    oled.screenSettings(1, 0, 6);
     Serial.println("\n[WIFI] Connected successfully");
     Serial.print("[WIFI] IP address : ");
     Serial.println(WiFi.localIP());
+    oled.print("Connected successfully");
+    oled.screenSettings(1, 0, 16);
+    oled.print("IP address : ");
+    oled.screenSettings(1, 0, 30);
+    oled.print(WiFi.localIP().toString());
+    oled.displayScreen();
+    delay(1000);
+    oled.clearScreen();
 
     return true;
 }
@@ -180,4 +264,11 @@ bool WiFiConnect::wifiConnectToRouter(const char ssid[], const char pass[])
 bool WiFiConnect::isConnected()
 {
     return WiFi.status() == WL_CONNECTED;
+}
+
+void WiFiConnect::getMac()
+{
+    mac = WiFi.macAddress();
+    Serial.print("MAC address : ");
+    Serial.println(mac);
 }

@@ -7,9 +7,8 @@
 #include <WiFiClientSecure.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
-#include <SD.h>
-#include <Audio.h>
 #include "WiFiConnect.hpp"
 #include "driver/i2s_std.h"
+#include "Microphone.hpp"
 
 #endif
