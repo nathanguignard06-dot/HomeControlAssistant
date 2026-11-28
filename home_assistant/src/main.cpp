@@ -50,6 +50,10 @@ void setup()
     //always start serial monitor, and other debug or visualising methods before wifi.begin()
     Serial.begin(115200);
     while(!Serial) {}
+
+    Wire.begin(21, 22);
+    Wire.setClock(100000);
+    
     Serial.println("\nSerial communication started");
 
     oled.begin();   //comment if not using Oled.hpp functionalities
@@ -86,37 +90,17 @@ void loop()
     }
     if(applicationStarted && microphoneReady)
     {
-        static int32_t audioBuffer[256];
+        static int16_t pcmBuffer[Microphone::BUFFER_SIZE];
 
         size_t samplesRead = 0;
 
-        if(microphone.read(audioBuffer, 256, samplesRead))
+        if(microphone.readPCM16(pcmBuffer, Microphone::BUFFER_SIZE, samplesRead))
         {
-            int64_t peak = 0;
+            Serial.print("[MIC] Samples: ");
+            Serial.print(samplesRead);
 
-            for(size_t i = 0; i < samplesRead; i++)
-            {
-                int64_t value = audioBuffer[i];
-
-                if(value < 0)
-                    value = -value;
-
-                if(value > peak)
-                    peak = value;
-            }
-
-            static unsigned long previousMillis = 0;
-
-            if(millis() - previousMillis >= 500)
-            {
-                previousMillis = millis();
-
-                Serial.print("[MIC] Samples: ");
-                Serial.print(samplesRead);
-
-                Serial.print(" | Peak: ");
-                Serial.println((long long)peak);
-            }
+            Serial.print(" | Bytes: ");
+            Serial.println(samplesRead * sizeof(int16_t));
         }
     }
 }

@@ -78,11 +78,7 @@ bool Microphone::begin()
     return true;
 }
 
-bool Microphone::read(
-    int32_t* buffer,
-    size_t sampleCount,
-    size_t& samplesRead
-)
+bool Microphone::read(int32_t* buffer, size_t sampleCount, size_t& samplesRead)
 {
     samplesRead = 0;
 
@@ -105,4 +101,31 @@ bool Microphone::read(
     samplesRead = bytesRead / sizeof(int32_t);
 
     return samplesRead > 0;
+}
+
+bool Microphone::readPCM16(int16_t* buffer, size_t sampleCount, size_t& samplesRead)
+{
+    samplesRead = 0;
+
+    if(rxHandle == nullptr || buffer == nullptr)
+        return false;
+
+    if(sampleCount == 0 || sampleCount > BUFFER_SIZE)
+        return false;
+
+    static int32_t rawBuffer[BUFFER_SIZE];
+
+    size_t rawSamplesRead = 0;
+
+    if(!read(rawBuffer, sampleCount, rawSamplesRead))
+        return false;
+
+    for(size_t i = 0; i < rawSamplesRead; i++)
+    {
+        buffer[i] = (int16_t)(rawBuffer[i] >> 16);
+    }
+
+    samplesRead = rawSamplesRead;
+
+    return true;
 }
